@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tactical Checkmate: Operation Defuse - 2D Top-Down Tactical Puzzle & Stealth</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Mission Bar -->
+  <header class="game-header">
+    <div class="brand-section">
+      <h1 class="game-title">Tactical Checkmate: Operation Defuse</h1>
+      <span class="student-tag">Moh. Arlyano Swandaru | NIM: 3012310044 | Desain Game</span>
+    </div>
+
+    <div class="center-hud">
+      <div class="timer-box">
+        <span id="timerDisplay" class="timer-text">01:30</span>
+      </div>
+      <span id="missionName" class="mission-text">MISSION: DEFUSE THE BOMB</span>
+    </div>
+
+    <div class="top-actions">
+      <div class="level-selector">
+        <select id="levelSelect">
+          <option value="0">Level 1: The Rook’s Corridor</option>
+          <option value="1">Level 2: Knight’s Ambush</option>
+          <option value="2">Level 3: Checkmate Protocol</option>
+        </select>
+      </div>
+      <button id="headerRestartBtn" class="btn-tactical" title="Ulangi Level Ini [R]">🔄 Restart [R]</button>
+      <button id="muteBtn" class="btn-tactical" title="Nyalakan / Matikan Audio">🔊 Audio: ON</button>
+    </div>
+  </header>
+
+  <!-- Viewport Canvas Container -->
+  <main class="viewport-container">
+    <canvas id="gameCanvas" width="1024" height="640"></canvas>
+
+    <!-- Floating In-World Defuse Alert Prompt -->
+    <div id="defusePrompt" class="defuse-prompt hidden">
+      🚨 BERADA DI PETAK BOM C4: TAHAN [SPASI] ATAU [E] UNTUK MENJINAKKAN!
+    </div>
+
+    <!-- Defeat Modal -->
+    <div id="defeatModal" class="modal-overlay hidden">
+      <div class="modal-content modal-defeat">
+        <h2 class="modal-title-defeat">MISSION FAILED</h2>
+        <p id="defeatReason" class="modal-body">Pemain terdeteksi oleh kerucut pandang musuh!</p>
+        <div class="modal-actions">
+          <button id="retryDefeatBtn" class="btn-danger">Coba Lagi [R]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="victoryModal" class="modal-overlay hidden">
+      <div class="modal-content modal-victory">
+        <h2 class="modal-title-victory">MISSION ACCOMPLISHED!</h2>
+        <p class="modal-body">CHECKMATE! Bom C4 berhasil dijinakkan tanpa memicu alarm.</p>
+        <div id="victoryStats" class="modal-body"></div>
+        <div class="modal-actions">
+          <button id="restartVictoryBtn" class="btn-primary">Mainkan Ulang</button>
+          <button id="nextVictoryBtn" class="btn-success">Level Berikutnya ➔</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom HUD (Persis Gambar 1) -->
+  <footer class="game-hud">
+    <div class="player-panel">
+      <span class="player-label">PLAYER: WHITE PAWN</span>
+      <div class="ability-cards">
+        <!-- Rook Mode -->
+        <div id="rookModeBtn" class="ability-card active" title="Mode Benteng: Gerak 1 petak horizontal / vertikal (WASD / Panah)">
+          <span class="icon">♜</span>
+          <div class="info">
+            <span class="name">ROOK MODE</span>
+            <span class="sub">[WASD / Panah]</span>
+          </div>
+        </div>
+
+        <!-- Knight Dash -->
+        <div id="knightDashBtn" class="ability-card" title="Mode Kuda: Lompat pola huruf L melompati peti & musuh. Cooldown 4 detik. (Tekan Shift)">
+          <span class="icon">♞</span>
+          <div class="info">
+            <span class="name">KNIGHT DASH</span>
+            <span id="knightCooldownLabel" class="sub">cooldown 4s [READY]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Status Panel -->
+    <div class="status-panel">
+      <div id="keycardStatus" class="keycard-badge">
+        Punya Keycard: <span class="text-rose-400 font-bold">NO ✗</span>
+      </div>
+      <button id="touchDefuseBtn" class="btn-defuse-touch" title="Tahan tombol ini atau tombol Spasi/E untuk menjinakkan bom saat di petak C4">
+        ⏱️ TAHAN JINAKKAN [SPASI / E]
+      </button>
+    </div>
+  </footer>
+
+  <!-- Academic Guide & Controls Briefing Section -->
+  <section class="briefing-box">
+    <h3>📖 Panduan Taktis & Mekanik Permainan (Operasi Grandmaster)</h3>
+    <p>
+      <strong>Tactical Checkmate: Operation Defuse</strong> memadukan aturan catur dengan penyusupan taktis dan penjinakan bom ala Counter-Strike:
+    </p>
+    <ul style="margin-top: 8px; margin-left: 20px; line-height: 1.8;">
+      <li><strong>Mode Benteng (Rook Mode - Utama):</strong> Tekan <span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span> atau <span class="key-badge">Tombol Panah</span> untuk melangkah 1 petak lurus. Terhalang oleh tembok beton solid dan peti kayu.</li>
+      <li><strong>Mode Kuda (Knight Dash - Kemampuan Khusus):</strong> Tekan <span class="key-badge">Shift</span> atau klik tombol <em>Knight Dash</em> untuk melihat pola lompatan huruf "L" (2 petak lurus + 1 petak menyamping). Anda dapat melompati peti kontainer dan menembus pengawasan musuh. Memiliki jeda cooldown 4 detik.</li>
+      <li><strong>Line of Sight & Takedown Senyap:</strong> Hindari kerucut pandang merah musuh atau kamera CCTV. Masuk ke petak musuh dari arah belakang atau titik buta (blind spot) untuk melumpuhkan penjaga secara senyap (+1 Takedown).</li>
+      <li><strong>Keycard & Pintu Lapis Baja:</strong> Pada Level 2 & 3, ambil Keycard di meja keamanan untuk membuka pintu gerbang menuju Bombsite.</li>
+      <li><strong>Penjinakan Bom C4:</strong> Melangkah ke petak bom C4, lalu <strong>TAHAN</strong> tombol <span class="key-badge">Spasi</span> atau <span class="key-badge">E</span> (atau tahan tombol defuse merah) sampai bilah progres 100%.</li>
+      <li><strong>Quick Restart:</strong> Tekan tombol <span class="key-badge">R</span> kapan saja jika salah perhitungan untuk mengulang level seketika.</li>
+    </ul>
+  </section>
+
+  <!-- Core Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
